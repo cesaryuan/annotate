@@ -59,6 +59,9 @@ def get_function_name(callee):
       else:
          function_name=re.match('(\S+)', callee.name)
       module_name=re.match('(\S+)', callee.name)
+  if module_name is None or function_name is None:
+      if callee.name.startswith('napi_'):
+          return ('nodejs-napi', callee.name)
   return (module_name, function_name)
 
 def do_comment(function_arg,stack_args,function):
@@ -82,8 +85,8 @@ def do_comment(function_arg,stack_args,function):
 def func_annotate_stack(module_name, function_name, stack, function):
     global modules
     global generic
-    modname=module_name.group(1)
-    funcname=function_name.group(1)
+    modname=module_name.group(1) if type(module_name)==re.Match else module_name
+    funcname=function_name.group(1) if type(function_name)==re.Match else function_name
     if modname in modules:
         if funcname in modules[modname]:
             stack_args = iter(stack)
